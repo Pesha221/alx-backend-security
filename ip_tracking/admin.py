@@ -2,7 +2,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import RequestLog
-
 @admin.register(RequestLog)
 class RequestLogAdmin(admin.ModelAdmin):
     list_display = [
@@ -14,7 +13,7 @@ class RequestLogAdmin(admin.ModelAdmin):
         'status_code_display',
         'response_time_display',
         'is_mobile_display',
-    ]
+        ]
     
     list_filter = [
         'method',
