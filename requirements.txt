@@ -1,0 +1,15 @@
+django-ipgeolocation 
+ipinfo 
+django-cacheops 
+requests
+# Optional: For better IP geolocation accuracy
+geoip2 
+maxminddb
+django-ratelimit
+# For testing
+pytest-django
+factory
+celery 
+redis 
+django-celery-results
+django-celery-beat
