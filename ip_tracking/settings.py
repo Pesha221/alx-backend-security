@@ -68,18 +68,17 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'ip_tracking_file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'ip_tracking.log',
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
-        'ip_tracking': {
-            'handlers': ['ip_tracking_file'],
+        'django_ratelimit': {
+            'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
+        # Add other loggers as needed, e.g., 'django': {...}
     },
 }
 
