@@ -1,0 +1,280 @@
+<!-- ip_tracking/templates/ip_tracking/rate_limit_exceeded.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Rate Limit Exceeded</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #e74c3c;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .status-code {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .message-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .message {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        
+        .details {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        
+        .detail-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            color: #7f8c8d;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .countdown {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fadbd8;
+            border-radius: 10px;
+            border: 2px solid #e74c3c;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-home {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-back {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .btn-contact {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ip-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <i class="fas fa-ban"></i>
+            Rate Limit Exceeded
+            <span class="status-code">429</span>
+        </h1>
+        
+        <div class="message-box">
+            <p class="message">
+                {{ message|default:"Too many requests from your IP address. Please wait before trying again." }}
+            </p>
+        </div>
+        
+        <div class="countdown" id="countdown">
+            <i class="fas fa-clock"></i>
+            You can try again in: <span id="timer">60</span> seconds
+        </div>
+        
+        <div class="details">
+            <div class="detail-item">
+                <div class="detail-label">Your IP Address</div>
+                <div class="detail-value">{{ ip_address }}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Rate Limit</div>
+                <div class="detail-value">
+                    {% if request.user.is_authenticated %}
+                    10 requests per minute (Authenticated)
+                    {% else %}
+                    5 requests per minute (Anonymous)
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="/" class="action-btn btn-home">
+                <i class="fas fa-home"></i>
+                Go to Homepage
+            </a>
+            
+            <button onclick="window.history.back()" class="action-btn btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Go Back
+            </button>
+            
+            <a href="mailto:support@example.com" class="action-btn btn-contact">
+                <i class="fas fa-envelope"></i>
+                Contact Support
+            </a>
+        </div>
+        
+        <div class="ip-info">
+            <i class="fas fa-info-circle"></i>
+            If you believe this is an error, please contact support with your IP address.
+        </div>
+    </div>
+    
+    <script>
+        // Countdown timer
+        let seconds = 60; // Default 60 seconds
+        const urlParams = new URLSearchParams(window.location.search);
+        const retryAfter = urlParams.get('retry_after');
+        
+        if (retryAfter) {
+            seconds = parseInt(retryAfter);
+        }
+        
+        const timerElement = document.getElementById('timer');
+        
+        function updateTimer() {
+            if (seconds > 0) {
+                timerElement.textContent = seconds;
+                seconds--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                timerElement.textContent = '0';
+                document.querySelector('.countdown').innerHTML = 
+                    '<i class="fas fa-check-circle"></i> You can now try again!';
+                document.querySelector('.countdown').style.background = '#d5f4e6';
+                document.querySelector('.countdown').style.color = '#27ae60';
+                document.querySelector('.countdown').style.borderColor = '#27ae60';
+            }
+        }
+        
+        // Start timer
+        updateTimer();
+        
+        // Auto-refresh when timer reaches 0
+        setTimeout(function() {
+            window.location.reload();
+        }, (seconds + 1) * 1000);
+        
+        // Log rate limit event
+        console.log('Rate limit exceeded for IP:', '{{ ip_address }}');
+        console.log('Rate limit will reset in:', seconds, 'seconds');
+    </script>
+    
+    <!-- Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+</body>
+</html>
