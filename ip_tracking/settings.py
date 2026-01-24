@@ -41,7 +41,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "ip_tracking.middleware.IPTrackingMiddleware",
     "ip_tracking.middleware.IPBlockingMiddleware",
-]
+    "ip_tracking.middleware.IPLoggingMiddleware",
+ ]
 
 
 IP_BLOCKING_ENABLED = True
