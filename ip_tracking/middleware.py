@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class IPTrackingMiddleware(MiddlewareMixin):
     """
-    Middleware to log IP address, timestamp, and metadata of every request.
+    Middleware to log IP address, metadata, and performance of every request.
     """
     def __call__(self, request):
         start_time = time.time()
@@ -25,33 +25,33 @@ class IPTrackingMiddleware(MiddlewareMixin):
 
     def _log_request(self, request, response, response_time):
         try:
-            # Import inside method to avoid early app-loading conflicts
+            # Import inside method to avoid early registration warnings
             from .models import RequestLog
 
             client_ip, _ = get_client_ip(request)
             if not client_ip:
                 return
 
-            user_agent_string = request.META.get("HTTP_USER_AGENT", "")
-            user_agent = parse(user_agent_string)
+            ua_string = request.META.get("HTTP_USER_AGENT", "")
+            user_agent = parse(ua_string)
             
-            # Using the renamed fields confirmed in your migration
+            # Using the renamed fields confirmed in your migration prompt
             RequestLog.objects.create(
                 ip_address=client_ip,
                 path=request.path[:255],
                 method=request.method,
                 user=request.user if request.user.is_authenticated else None,
-                user_agent=user_agent_string,
+                user_agent=ua_string,
                 status_code=response.status_code,
                 response_time=response_time,
-                is_hosting=user_agent.is_bot,    # Renamed from is_bot
-                is_proxy=user_agent.is_mobile,   # Renamed from is_mobile
-                is_tor=user_agent.is_pc,         # Renamed from is_pc
-                is_vpn=user_agent.is_tablet,     # Renamed from is_tablet
+                is_hosting=user_agent.is_bot,    # was is_bot
+                is_proxy=user_agent.is_mobile,   # was is_mobile
+                is_tor=user_agent.is_pc,         # was is_pc
+                is_vpn=user_agent.is_tablet,     # was is_tablet
                 timestamp=timezone.now(),
             )
         except Exception as e:
-            logger.error(f"IP Tracking Middleware Error: {e}")
+            logger.error(f"IP Tracking Error: {e}")
 
 class IPBlockingMiddleware(MiddlewareMixin):
     """
@@ -66,7 +66,7 @@ class IPBlockingMiddleware(MiddlewareMixin):
             if request.path.startswith('/api/'):
                 return JsonResponse({'error': 'Access Denied', 'ip': client_ip}, status=403)
             
-            # Returns the custom blocked.html template
+            # This looks for ip_tracking/templates/ip_tracking/blocked.html
             return render(request, 'ip_tracking/blocked.html', {'ip': client_ip}, status=403)
             
         return self.get_response(request)
