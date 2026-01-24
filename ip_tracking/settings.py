@@ -24,7 +24,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # FIX: Use the full Config path to prevent double registration warnings
     "ip_tracking.apps.IpTrackingConfig", 
     "ipware",
     "user_agents",
@@ -40,10 +39,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # FIX: Updated class name to match the new middleware.py
     "ip_tracking.middleware.IPTrackingMiddleware",
     "ip_tracking.middleware.IPBlockingMiddleware",
 ]
+
+
+IP_BLOCKING_ENABLED = True
 
 USER_AGENT_CACHE = "default"
 
