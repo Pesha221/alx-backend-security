@@ -1,3 +1,4 @@
+
 # ip_tracking/middleware.py
 import time
 import logging
@@ -9,13 +10,9 @@ from django.shortcuts import render
 from ipware import get_client_ip
 from user_agents import parse
 
-# Import models inside methods to prevent "Model already registered" warnings during app init
 logger = logging.getLogger(__name__)
 
 class IPTrackingMiddleware(MiddlewareMixin):
-    """
-    Middleware to log and track IP address geolocation and request details.
-    """
     def __call__(self, request):
         start_time = time.time()
         response = self.get_response(request)
@@ -34,18 +31,22 @@ class IPTrackingMiddleware(MiddlewareMixin):
 
             user_agent = parse(request.META.get("HTTP_USER_AGENT", ""))
             
+            # Using the NEW field names confirmed in your migration
             log_entry = RequestLog.objects.create(
                 ip_address=client_ip,
                 path=request.path,
                 method=request.method,
                 user=request.user if request.user.is_authenticated else None,
-                user_agent=str(user_agent),
+                user_agent=request.META.get("HTTP_USER_AGENT", ""),
+                is_hosting=user_agent.is_bot,  # Renamed from is_bot
+                is_proxy=user_agent.is_mobile, # Renamed from is_mobile
+                is_tor=user_agent.is_pc,       # Renamed from is_pc
+                is_vpn=user_agent.is_tablet,   # Renamed from is_tablet
                 status_code=response.status_code,
                 response_time=response_time,
                 timestamp=timezone.now(),
             )
             
-            # Geolocation tracking
             geo_data = IPGeolocationService.get_geolocation(client_ip)
             if geo_data:
                 log_entry.save_geolocation_data(geo_data)
@@ -54,23 +55,16 @@ class IPTrackingMiddleware(MiddlewareMixin):
             logger.error(f"Error in IPTrackingMiddleware: {e}")
 
 class IPBlockingMiddleware(MiddlewareMixin):
-    """
-    Middleware to block requests from blacklisted IP addresses.
-    """
     def __call__(self, request):
         from .models import BlockedIP
-        
         client_ip, _ = get_client_ip(request)
         blocked_ip = BlockedIP.is_ip_blocked(client_ip)
         
         if blocked_ip and getattr(settings, 'IP_BLOCKING_ENABLED', True):
-            return self._blocked_response(request, client_ip, blocked_ip)
+            if request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'Access Denied', 'reason': blocked_ip.reason}, status=403)
+            
+            template = getattr(settings, 'IP_BLOCK_TEMPLATE', 'ip_tracking/blocked.html')
+            return render(request, template, {'ip_address': client_ip, 'block_reason': blocked_ip.reason}, status=403)
             
         return self.get_response(request)
-
-    def _blocked_response(self, request, ip, blocked_ip):
-        if request.path.startswith('/api/') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'error': 'Access Denied', 'reason': blocked_ip.reason}, status=403)
-        
-        template = getattr(settings, 'IP_BLOCK_TEMPLATE', 'ip_tracking/blocked.html')
-        return render(request, template, {'ip': ip, 'reason': blocked_ip.reason}, status=403)
