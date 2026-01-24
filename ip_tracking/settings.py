@@ -15,20 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-$^0-)ypj&^3*3nygd9qgh3f7m$h+-8efm!i7&p_&-w+a3s8@we"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
-# Application definition
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -37,7 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "ip_tracking",
+    "ip_tracking.apps.IpTrackingConfig", 
     "ipware",
     "user_agents",
     "django_celery_results",
@@ -52,7 +39,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "ip_tracking.middleware.IPLoggingMiddleware",
+    "ip_tracking.middleware.IPTrackingMiddleware",
+    "ip_tracking.middleware.IPBlockingMiddleware",
 ]
 
 USER_AGENT_CACHE = "default"
