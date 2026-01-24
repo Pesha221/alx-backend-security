@@ -70,3 +70,6 @@ class IPBlockingMiddleware(MiddlewareMixin):
             return render(request, 'ip_tracking/blocked.html', {'ip': client_ip}, status=403)
             
         return self.get_response(request)
+
+# Backward compatibility alias
+IPLoggingMiddleware = IPTrackingMiddleware
