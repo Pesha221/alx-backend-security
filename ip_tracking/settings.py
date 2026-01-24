@@ -15,7 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField' #
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # FIX: Use the full Config path to prevent double registration warnings
     "ip_tracking.apps.IpTrackingConfig", 
     "ipware",
     "user_agents",
@@ -39,6 +40,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # FIX: Updated class name to match the new middleware.py
     "ip_tracking.middleware.IPTrackingMiddleware",
     "ip_tracking.middleware.IPBlockingMiddleware",
 ]
